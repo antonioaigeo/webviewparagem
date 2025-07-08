@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador de Ortomosaicos com Desenho</title>
+    <title>Visualizador de Ortomosaicos PRO</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -44,20 +44,26 @@
             width: 100%;
             background: #111827;
             color: #f9fafb;
-            padding: 12px 25px;
-            z-index: 1001; /* Z-index mais alto para ficar sempre no topo */
+            padding: 12px 20px;
+            z-index: 1001;
             box-sizing: border-box;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 20px;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 500;
+        .header h1 { margin: 0; font-size: 1.25rem; font-weight: 500; flex-shrink: 0; }
+        .header .header-tools { display: flex; align-items: center; gap: 10px; }
+        .coord-input {
+            border: 1px solid #4b5563;
+            background-color: #374151;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'Inter', sans-serif;
         }
-        .export-button {
+        .header button {
             background-color: #2563eb;
             color: white;
             border: none;
@@ -68,82 +74,68 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        .export-button:hover {
-            background-color: #1d4ed8;
-        }
+        .header button:hover { background-color: #1d4ed8; }
 
-        /* CORREÇÃO: Ajuste para os controlos não sobreporem o header */
-        .leaflet-top {
-            top: 60px; /* Move todos os controlos do topo para baixo */
-        }
+        /* Posição dos controlos do Leaflet */
+        .leaflet-top.leaflet-left { margin-top: 60px; }
+        .leaflet-top.leaflet-right { margin-top: 60px; }
 
-        /* Estilo unificado para os controlos do Leaflet */
+        /* Estilo dos controlos */
         .leaflet-control-container .leaflet-control {
             border-radius: 10px !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
             border: none !important;
         }
         .leaflet-control-layers {
-            background: rgba(255, 255, 255, 0.8) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
         }
-        .leaflet-control-layers-base label, .leaflet-control-layers-overlays label {
-            font-weight: 500;
-        }
+        .leaflet-control-layers-base label, .leaflet-control-layers-overlays label { font-weight: 500; }
         .leaflet-control-zoom a {
             color: #1f2937 !important;
             background-color: white !important;
-            width: 32px !important;
-            height: 32px !important;
-            line-height: 32px !important;
+            width: 32px !important; height: 32px !important; line-height: 32px !important;
         }
         .leaflet-bar a:first-child { border-top-left-radius: 10px; border-top-right-radius: 10px; }
         .leaflet-bar a:last-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
 
+        /* Controlo de Opacidade */
+        .opacity-control {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .opacity-control input[type=range] { width: 120px; }
+
+        /* Painel de Coordenadas */
+        .coordinates-control {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
         /* Modal para adicionar descrição */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none; align-items: center;
+            justify-content: center; z-index: 2000;
         }
         .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background: white; padding: 25px; border-radius: 12px;
+            width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .modal-content h2 { margin-top: 0; }
         .modal-content textarea {
-            width: 100%;
-            min-height: 80px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            padding: 10px;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            margin-top: 10px;
+            width: 100%; min-height: 80px; border-radius: 8px; border: 1px solid #d1d5db;
+            padding: 10px; box-sizing: border-box; font-family: 'Inter', sans-serif; margin-top: 10px;
         }
-        .modal-buttons {
-            margin-top: 20px;
-            text-align: right;
-        }
-        .modal-buttons button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-        }
+        .modal-buttons { margin-top: 20px; text-align: right; }
+        .modal-buttons button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; }
         #save-desc-btn { background-color: #2563eb; color: white; margin-left: 10px; }
         #cancel-desc-btn { background-color: #e5e7eb; color: #374151; }
     </style>
@@ -151,7 +143,11 @@
 <body>
     <div class="header">
         <h1>Visualizador de Ortomosaicos</h1>
-        <button id="export-btn" class="export-button">Exportar Desenhos</button>
+        <div class="header-tools">
+            <input type="text" id="goto-coords-input" class="coord-input" placeholder="Lat, Lon (ex: -22.2, -54.7)">
+            <button id="goto-btn">Ir</button>
+            <button id="export-btn">Exportar Desenhos</button>
+        </div>
     </div>
     <div id="map"></div>
 
@@ -178,308 +174,40 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            const tileLayerOptions = {
-                tms: true, 
-                minZoom: 1,
-                maxZoom: 22,
-                attribution: 'Drone: [Seu Nome/Empresa]'
-            };
+            const tileLayerOptions = { tms: true, minZoom: 1, maxZoom: 22, attribution: 'Drone: [Seu Nome/Empresa]' };
 
-            const areaA = L.tileLayer('tiles_area_a/{z}/{x}/{y}.png', tileLayerOptions);
-            const areaB = L.tileLayer('tiles_area_b/{z}/{x}/{y}.png', tileLayerOptions);
-
-            const baseLayers = { "Mapa Base": osmLayer };
-            const overlayLayers = { "Ortomosaico A": areaA, "Ortomosaico B": areaB };
-            L.control.layers(baseLayers, overlayLayers, { collapsed: false }).addTo(map);
-
-            // --- LÓGICA DE DESENHO ---
-
-            // Grupo para armazenar os elementos desenhados
-            const drawnItems = new L.FeatureGroup();
-            map.addLayer(drawnItems);
-
-            // Controlo de desenho
-            const drawControl = new L.Control.Draw({
-                edit: { featureGroup: drawnItems },
-                draw: {
-                    polygon: true,
-                    polyline: true,
-                    rectangle: false,
-                    circle: false,
-                    circlemarker: false,
-                    marker: true
-                }
-            });
-            drawControl.addTo(map);
-
-            // Lógica do Modal de Descrição
-            const modal = document.getElementById('description-modal');
-            const descriptionInput = document.getElementById('description-input');
-            const saveBtn = document.getElementById('save-desc-btn');
-            const cancelBtn = document.getElementById('cancel-desc-btn');
-            let currentLayer;
-
-            map.on(L.Draw.Event.CREATED, function (event) {
-                currentLayer = event.layer;
-                descriptionInput.value = ''; // Limpa o campo de texto
-                modal.style.display = 'flex'; // Mostra o modal
-                descriptionInput.focus();
-            });
-
-            saveBtn.addEventListener('click', function() {
-                const description = descriptionInput.value;
-                if (currentLayer) {
-                    // Adiciona a descrição como um popup
-                    currentLayer.bindPopup(description);
-                    // Guarda a descrição nas propriedades do GeoJSON
-                    if (!currentLayer.feature) currentLayer.feature = {};
-                    currentLayer.feature.type = "Feature";
-                    if (!currentLayer.feature.properties) currentLayer.feature.properties = {};
-                    currentLayer.feature.properties.description = description;
-                    
-                    drawnItems.addLayer(currentLayer);
-                }
-                modal.style.display = 'none';
-            });
-
-            cancelBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-
-            // --- LÓGICA DE EXPORTAÇÃO ---
-            document.getElementById('export-btn').addEventListener('click', function() {
-                const data = drawnItems.toGeoJSON();
-                if (data.features.length === 0) {
-                    alert("Nenhum elemento foi desenhado para exportar.");
-                    return;
-                }
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "desenhos.geojson");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-            });
-        });
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador de Ortomosaicos com Desenho</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet Draw Plugin CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
-
-    <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Leaflet Draw Plugin JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            overflow: hidden;
-        }
-        
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-
-        /* Barra de Título Superior */
-        .header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #111827;
-            color: #f9fafb;
-            padding: 12px 25px;
-            z-index: 1001; /* Z-index mais alto para ficar sempre no topo */
-            box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 500;
-        }
-        .export-button {
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .export-button:hover {
-            background-color: #1d4ed8;
-        }
-
-        /* CORREÇÃO: Ajuste para os controlos não sobreporem o header */
-        .leaflet-top {
-            top: 60px; /* Move todos os controlos do topo para baixo */
-        }
-
-        /* Estilo unificado para os controlos do Leaflet */
-        .leaflet-control-container .leaflet-control {
-            border-radius: 10px !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-            border: none !important;
-        }
-        .leaflet-control-layers {
-            background: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        }
-        .leaflet-control-layers-base label, .leaflet-control-layers-overlays label {
-            font-weight: 500;
-        }
-        .leaflet-control-zoom a {
-            color: #1f2937 !important;
-            background-color: white !important;
-            width: 32px !important;
-            height: 32px !important;
-            line-height: 32px !important;
-        }
-        .leaflet-bar a:first-child { border-top-left-radius: 10px; border-top-right-radius: 10px; }
-        .leaflet-bar a:last-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
-
-        /* Modal para adicionar descrição */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .modal-content h2 { margin-top: 0; }
-        .modal-content textarea {
-            width: 100%;
-            min-height: 80px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            padding: 10px;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            margin-top: 10px;
-        }
-        .modal-buttons {
-            margin-top: 20px;
-            text-align: right;
-        }
-        .modal-buttons button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        #save-desc-btn { background-color: #2563eb; color: white; margin-left: 10px; }
-        #cancel-desc-btn { background-color: #e5e7eb; color: #374151; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Visualizador de Ortomosaicos</h1>
-        <button id="export-btn" class="export-button">Exportar Desenhos</button>
-    </div>
-    <div id="map"></div>
-
-    <!-- Modal para Descrição -->
-    <div id="description-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>Adicionar Descrição</h2>
-            <p>Insira uma descrição para o elemento desenhado.</p>
-            <textarea id="description-input" placeholder="Ex: Poste de luz danificado, área de plantio..."></textarea>
-            <div class="modal-buttons">
-                <button id="cancel-desc-btn">Cancelar</button>
-                <button id="save-desc-btn">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            // --- COMO ADICIONAR NOVOS ORTOMOSAICOS ---
+            // 1. Gere os tiles para a sua nova imagem e coloque-os numa nova pasta (ex: 'tiles_area_c').
+            // 2. Descomente uma das linhas abaixo (ou copie e cole uma nova).
+            // 3. Altere o nome da variável (ex: areaC) e o caminho da pasta (ex: 'tiles_area_c/...').
+            // 4. Descomente a linha correspondente no objeto 'overlayLayers' mais abaixo.
             
-            const map = L.map('map', { zoomControl: false }).setView([-15.78, -47.92], 5);
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-            const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            const tileLayerOptions = {
-                tms: true, 
-                minZoom: 1,
-                maxZoom: 22,
-                attribution: 'Drone: [Seu Nome/Empresa]'
-            };
-
             const areaA = L.tileLayer('tiles_area_a/{z}/{x}/{y}.png', tileLayerOptions);
             const areaB = L.tileLayer('tiles_area_b/{z}/{x}/{y}.png', tileLayerOptions);
+            // const areaC = L.tileLayer('tiles_area_c/{z}/{x}/{y}.png', tileLayerOptions);
+            // const areaD = L.tileLayer('tiles_area_d/{z}/{x}/{y}.png', tileLayerOptions);
+            // const areaE = L.tileLayer('tiles_area_e/{z}/{x}/{y}.png', tileLayerOptions);
+            // const areaF = L.tileLayer('tiles_area_f/{z}/{x}/{y}.png', tileLayerOptions);
+            // const areaG = L.tileLayer('tiles_area_g/{z}/{x}/{y}.png', tileLayerOptions);
 
             const baseLayers = { "Mapa Base": osmLayer };
-            const overlayLayers = { "Ortomosaico A": areaA, "Ortomosaico B": areaB };
+            const overlayLayers = {
+                "Ortomosaico A": areaA,
+                "Ortomosaico B": areaB
+                // "Ortomosaico C": areaC,
+                // "Ortomosaico D": areaD,
+                // "Ortomosaico E": areaE,
+                // "Ortomosaico F": areaF,
+                // "Ortomosaico G": areaG,
+            };
             L.control.layers(baseLayers, overlayLayers, { collapsed: false }).addTo(map);
 
             // --- LÓGICA DE DESENHO ---
-
-            // Grupo para armazenar os elementos desenhados
             const drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
-
-            // Controlo de desenho
-            const drawControl = new L.Control.Draw({
-                edit: { featureGroup: drawnItems },
-                draw: {
-                    polygon: true,
-                    polyline: true,
-                    rectangle: false,
-                    circle: false,
-                    circlemarker: false,
-                    marker: true
-                }
-            });
+            const drawControl = new L.Control.Draw({ edit: { featureGroup: drawnItems }, draw: { polygon: true, polyline: true, rectangle: false, circle: false, circlemarker: false, marker: true } });
             drawControl.addTo(map);
 
-            // Lógica do Modal de Descrição
             const modal = document.getElementById('description-modal');
             const descriptionInput = document.getElementById('description-input');
             const saveBtn = document.getElementById('save-desc-btn');
@@ -488,32 +216,70 @@
 
             map.on(L.Draw.Event.CREATED, function (event) {
                 currentLayer = event.layer;
-                descriptionInput.value = ''; // Limpa o campo de texto
-                modal.style.display = 'flex'; // Mostra o modal
+                descriptionInput.value = '';
+                modal.style.display = 'flex';
                 descriptionInput.focus();
             });
 
             saveBtn.addEventListener('click', function() {
                 const description = descriptionInput.value;
                 if (currentLayer) {
-                    // Adiciona a descrição como um popup
                     currentLayer.bindPopup(description);
-                    // Guarda a descrição nas propriedades do GeoJSON
                     if (!currentLayer.feature) currentLayer.feature = {};
                     currentLayer.feature.type = "Feature";
                     if (!currentLayer.feature.properties) currentLayer.feature.properties = {};
                     currentLayer.feature.properties.description = description;
-                    
                     drawnItems.addLayer(currentLayer);
                 }
                 modal.style.display = 'none';
             });
+            cancelBtn.addEventListener('click', () => { modal.style.display = 'none'; });
 
-            cancelBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
+            // --- FERRAMENTAS GEO ---
+
+            // Coordenadas do Rato
+            const coordinatesControl = L.control({ position: 'bottomleft' });
+            coordinatesControl.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'coordinates-control');
+                this.update();
+                return this._div;
+            };
+            coordinatesControl.update = function (latlng) {
+                this._div.innerHTML = latlng ? `Lat: ${latlng.lat.toFixed(6)}, Lon: ${latlng.lng.toFixed(6)}` : 'Passe o rato sobre o mapa';
+            };
+            coordinatesControl.addTo(map);
+            map.on('mousemove', e => coordinatesControl.update(e.latlng));
+
+            // Controlo de Opacidade
+            const opacityControl = L.control({ position: 'topright' });
+            opacityControl.onAdd = function(map) {
+                const container = L.DomUtil.create('div', 'leaflet-control opacity-control');
+                container.innerHTML = '<label for="opacity-slider" style="margin-right: 5px;">Opacidade:</label><input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="1">';
+                L.DomEvent.disableClickPropagation(container);
+                return container;
+            };
+            opacityControl.addTo(map);
+            document.getElementById('opacity-slider').addEventListener('input', function(e) {
+                const opacityValue = e.target.value;
+                for (const key in overlayLayers) {
+                    if (map.hasLayer(overlayLayers[key])) {
+                        overlayLayers[key].setOpacity(opacityValue);
+                    }
+                }
             });
 
-            // --- LÓGICA DE EXPORTAÇÃO ---
+            // "Ir Para" Coordenadas
+            document.getElementById('goto-btn').addEventListener('click', function() {
+                const input = document.getElementById('goto-coords-input').value;
+                const parts = input.split(',').map(s => parseFloat(s.trim()));
+                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    map.setView([parts[0], parts[1]], 18); // Zoom 18 para detalhe
+                } else {
+                    alert("Formato de coordenadas inválido. Use: 'latitude, longitude'");
+                }
+            });
+
+            // Exportar para GeoJSON
             document.getElementById('export-btn').addEventListener('click', function() {
                 const data = drawnItems.toGeoJSON();
                 if (data.features.length === 0) {
